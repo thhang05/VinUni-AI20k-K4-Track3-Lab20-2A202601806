@@ -4,10 +4,7 @@ from multi_agent_research_lab.core.schemas import BenchmarkMetrics
 
 
 def render_markdown_report(metrics: list[BenchmarkMetrics]) -> str:
-    """Render benchmark metrics to markdown.
-
-    TODO(student): Add richer analysis, examples, screenshots, and trace links.
-    """
+    """Render benchmark metrics to a markdown table plus an aggregate summary."""
 
     lines = [
         "# Benchmark Report",
@@ -24,4 +21,16 @@ def render_markdown_report(metrics: list[BenchmarkMetrics]) -> str:
             f"| {item.run_name} | {item.latency_seconds:.2f} | {cost} | {quality} "
             f"| {citation} | {failure} | {item.notes} |"
         )
+
+    lines.extend(["", "## Summary by run name", ""])
+    lines.extend(["| Run | Avg latency (s) | Avg quality | Runs |", "|---|---:|---:|---:|"])
+    by_name: dict[str, list[BenchmarkMetrics]] = {}
+    for item in metrics:
+        by_name.setdefault(item.run_name, []).append(item)
+    for name, group in by_name.items():
+        avg_latency = sum(m.latency_seconds for m in group) / len(group)
+        quality_values = [m.quality_score for m in group if m.quality_score is not None]
+        avg_quality = f"{sum(quality_values) / len(quality_values):.1f}" if quality_values else ""
+        lines.append(f"| {name} | {avg_latency:.2f} | {avg_quality} | {len(group)} |")
+
     return "\n".join(lines) + "\n"

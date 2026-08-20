@@ -12,9 +12,12 @@ from typing import Any
 
 @contextmanager
 def trace_span(name: str, attributes: dict[str, Any] | None = None) -> Iterator[dict[str, Any]]:
-    """Minimal span context used by the skeleton.
+    """Minimal span context.
 
-    TODO(student): Replace or augment with LangSmith/Langfuse provider spans.
+    Every agent wraps its `run()` body in this and forwards the finished span to
+    `ResearchState.record_span`, so `state.trace` has a name/attributes/duration entry per
+    step without depending on an external provider. Swap in LangSmith/Langfuse here if a
+    hosted trace UI is needed later.
     """
 
     started = perf_counter()

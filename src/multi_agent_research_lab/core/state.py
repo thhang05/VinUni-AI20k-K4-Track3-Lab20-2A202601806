@@ -32,3 +32,8 @@ class ResearchState(BaseModel):
 
     def add_trace_event(self, name: str, payload: dict[str, Any]) -> None:
         self.trace.append({"name": name, "payload": payload})
+
+    def record_span(self, span: dict[str, Any]) -> None:
+        """Convenience wrapper: log a `trace_span` context's finished span as a trace event."""
+        payload = {**span["attributes"], "duration_seconds": span["duration_seconds"]}
+        self.add_trace_event(span["name"], payload)
